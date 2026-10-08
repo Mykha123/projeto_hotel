@@ -221,14 +221,17 @@ class Quarto(ABC):
         self.tipo = tipo
         self.preco_diaria = preco_diaria
         self._ocupado = False
+        pass
 
     @property
     def ocupado(self):
         return self._ocupado
+        pass
 
     @property
     def preco_diaria(self):
         return self._preco_diaria
+        pass
 
     @preco_diaria.setter
     def preco_diaria(self, valor):
@@ -236,12 +239,15 @@ class Quarto(ABC):
             print("Preço inválido.")
             return
         self._preco_diaria = valor
+        pass
 
     def ocupar(self):
         self._ocupado = True
+        pass
 
     def liberar(self):
         self._ocupado = False
+        pass
 
     @abstractmethod
     def mostrar_informacoes(self):
