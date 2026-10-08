@@ -1,0 +1,430 @@
+from abc import ABC, abstractmethod
+
+
+class Pessoa(ABC):
+    def __init__(self, nome, idade):
+        self.nome = nome
+        self.idade = idade
+
+    @property
+    def nome(self):
+        return self._nome
+        pass
+    @nome.setter
+    def nome(self, valor):
+        self._nome = valor
+        pass
+    @property
+    def idade(self):
+        return self._idade
+        pass
+    @idade.setter
+    def idade(self, valor):
+        if valor < 0:
+            print("Idade inválida.")
+            return
+        self._idade = valor
+
+    @abstractmethod
+    def mostrar_informacoes(self):
+        pass
+
+
+class Funcionario(Pessoa):
+    def __init__(self, nome, id_func, idade, salario):
+        super().__init__(nome, idade)
+        self.id_func = id_func
+        self.salario = salario
+
+    def mostrar_informacoes(self):
+        print(
+            f"Funcionário: {self.nome} | ID: {self.id_func} | "
+            f"Salário: {self.salario} €"
+        )
+        pass
+
+
+class Hospede(Pessoa):
+    def __init__(self, nome, idade, dias_estadia, quarto=None):
+        super().__init__(nome, idade)
+        self.dias_estadia = dias_estadia
+        self._quarto = None
+
+        if quarto is not None:
+            self.quarto = quarto
+
+    @property
+    def quarto(self):
+        return self._quarto
+        pass
+
+    @quarto.setter
+    def quarto(self, quarto):
+        if quarto is None:
+            if self._quarto is not None:
+                self._quarto.liberar()
+            self._quarto = None
+            return
+
+        if quarto.ocupado:
+            print("O quarto já está ocupado.")
+            return
+
+        if self._quarto is not None and self._quarto != quarto:
+            self._quarto.liberar()
+
+        self._quarto = quarto
+        quarto.ocupar()
+
+    def atribuir_quarto(self, quarto):
+        self.quarto = quarto
+        pass
+
+    def calcular_conta(self):
+        if self.quarto is None:
+            return 0
+        return self.quarto.preco_diaria * self.dias_estadia
+
+    def mostrar_informacoes(self):
+        numero = self.quarto.numero if self.quarto else "Sem quarto"
+        print(
+            f"Hóspede: {self.nome} | Idade: {self.idade} | "
+            f"Quarto: {numero}"
+        )
+
+    def checkout(self):
+        if self.quarto is not None:
+            numero = self.quarto.numero
+            self.quarto = None
+            print(f"Checkout realizado. Quarto {numero} ficou livre.")
+        else:
+            print(f"{self.nome} não tem quarto atribuído.")
+
+
+class Gerente(Funcionario):
+    def __init__(self, nome, idade, salario):
+        super().__init__(nome, "G01", idade, salario)
+        self.bonus = salario * 0.10
+
+    def mostrar_informacoes(self):
+        print(
+            f"Gerente: {self.nome} Idade: {self.idade} "
+            f"Salário: {self.salario} € Bônus: {self.bonus} €"
+        )
+
+    def gerar_relatorio(self, funcionarios):
+        print("Relatório de Funcionários")
+        for funcionario in funcionarios:
+            funcionario.mostrar_informacoes()
+
+
+class Recepcionista(Funcionario):
+    TURNOS_VALIDOS = ("manhã", "tarde", "noite")
+
+    def __init__(self, nome, id_func, idade, salario, turno):
+        super().__init__(nome, id_func, idade, salario)
+        self.turno = turno
+        pass
+
+    @property
+    def turno(self):
+        return self._turno
+
+    @turno.setter
+    def turno(self, valor):
+        if valor not in self.TURNOS_VALIDOS:
+            print("Turno inválido. Use manhã, tarde ou noite.")
+            return
+        self._turno = valor
+
+    def mostrar_informacoes(self):
+        print(
+            f"Recepcionista: {self.nome} | ID: {self.id_func} | "
+            f"Salário: {self.salario} € | Turno: {self.turno}"
+        )
+
+    def registrar_hospede(self, hospede, lista_hospedes):
+        lista_hospedes.append(hospede)
+        print(f"Hóspede {hospede.nome} registado.")
+
+    def listar_hospedes(self, lista_hospedes):
+        print("Lista de Hóspedes")
+        if not lista_hospedes:
+            print("Não existem hóspedes registados.")
+            return
+        for hospede in lista_hospedes:
+            hospede.mostrar_informacoes()
+
+
+class TecnicoManutencao(Funcionario):
+    def __init__(self, nome, idade, salario, especialidade):
+        super().__init__(nome, "T01", idade, salario)
+        self.especialidade = especialidade
+
+    @property
+    def especialidade(self):
+        return self._especialidade
+
+    @especialidade.setter
+    def especialidade(self, valor):
+        self._especialidade = valor
+        pass
+
+    def mostrar_informacoes(self):
+        print(
+            f"Técnico de Manutenção: {self.nome} | Idade: {self.idade} | "
+            f"Salário: {self.salario} € | "
+            f"Especialidade: {self.especialidade}"
+        )
+
+
+class TecnicoRecepcao(Recepcionista, TecnicoManutencao):
+    def __init__(self, nome, id_func, salario, setor, especialidade):
+        Funcionario.__init__(self, nome, id_func, 0, salario)
+        self.setor = setor
+        self.especialidade = especialidade
+        self.hospedes_registados = []
+        self.reparos = []
+
+    def registrar_hospede(self, nome_hospede):
+        self.hospedes_registados.append(nome_hospede)
+        print(f"Hóspede {nome_hospede} registado pelo técnico de receção.")
+
+    def registrar_reparo(self, descricao):
+        self.reparos.append(descricao)
+        print(f"Reparo registado: {descricao}")
+
+    def mostrar_info(self):
+        print(
+            f"Técnico de Receção: {self.nome} | ID: {self.id_func} | "
+            f"Salário: {self.salario} € | Setor: {self.setor} | "
+            f"Especialidade: {self.especialidade}"
+        )
+        quantidade_hospedes = 0
+        for nome in self.hospedes_registados:
+            quantidade_hospedes = quantidade_hospedes + 1
+
+        quantidade_reparos = 0
+        for reparo in self.reparos:
+            quantidade_reparos = quantidade_reparos + 1
+
+        print(f"Hóspedes registados: {quantidade_hospedes}")
+        print(f"Reparos registados: {quantidade_reparos}")
+
+    def mostrar_informacoes(self):
+        self.mostrar_info()
+
+
+class Quarto(ABC):
+    def __init__(self, numero, tipo, preco_diaria):
+        self.numero = numero
+        self.tipo = tipo
+        self.preco_diaria = preco_diaria
+        self._ocupado = False
+
+    @property
+    def ocupado(self):
+        return self._ocupado
+
+    @property
+    def preco_diaria(self):
+        return self._preco_diaria
+
+    @preco_diaria.setter
+    def preco_diaria(self, valor):
+        if valor < 0:
+            print("Preço inválido.")
+            return
+        self._preco_diaria = valor
+
+    def ocupar(self):
+        self._ocupado = True
+
+    def liberar(self):
+        self._ocupado = False
+
+    @abstractmethod
+    def mostrar_informacoes(self):
+        pass
+
+
+class QuartoSimples(Quarto):
+    def __init__(self, numero, preco_diaria=45.0):
+        super().__init__(numero, "Simples", preco_diaria)
+
+    def mostrar_informacoes(self):
+        estado = "Ocupado" if self.ocupado else "Livre"
+        print(
+            f"Quarto {self.numero} | Tipo: {self.tipo} | "
+            f"Preço: {self.preco_diaria} € | Estado: {estado}"
+        )
+
+
+class QuartoLuxo(Quarto):
+    def __init__(self, numero, preco_diaria=90.0):
+        super().__init__(numero, "Luxo", preco_diaria)
+
+    def mostrar_informacoes(self):
+        estado = "Ocupado" if self.ocupado else "Livre"
+        print(
+            f"Quarto {self.numero} | Tipo: {self.tipo} | "
+            f"Preço: {self.preco_diaria} € | Estado: {estado}"
+        )
+
+
+class Hotel:
+    def __init__(self, nome):
+        self.nome = nome
+        self.quartos = []
+        self.hospedes = []
+        self.funcionarios = []
+
+    def adicionar_quarto(self, quarto):
+        self.quartos.append(quarto)
+
+    def adicionar_hospede(self, hospede):
+        self.hospedes.append(hospede)
+
+    def adicionar_funcionario(self, funcionario):
+        self.funcionarios.append(funcionario)
+
+    def listar_quartos(self):
+        print(f"Quartos do {self.nome}")
+        for quarto in self.quartos:
+            quarto.mostrar_informacoes()
+
+    def listar_funcionarios(self):
+        print(f"Funcionários do {self.nome}")
+        for funcionario in self.funcionarios:
+            funcionario.mostrar_informacoes()
+
+
+def criar_dados():
+    hotel = Hotel("Hotel GPSI")
+
+    quarto1 = QuartoSimples(101, 45)
+    quarto2 = QuartoSimples(102, 50)
+    quarto3 = QuartoLuxo(201, 90)
+    quarto4 = QuartoLuxo(202, 110)
+
+    for quarto in (quarto1, quarto2, quarto3, quarto4):
+        hotel.adicionar_quarto(quarto)
+
+    gerente = Gerente("Ana", 35, 1400)
+    rececionista = Recepcionista("Pedro", "R01", 28, 950, "tarde")
+    tecnico = TecnicoManutencao("João", 40, 1100, "Eletricidade")
+    tecnico_recepcao = TecnicoRecepcao(
+        "Rui", "TR01", 1200, "Receção", "Informática"
+    )
+
+    for funcionario in (gerente, rececionista, tecnico, tecnico_recepcao):
+        hotel.adicionar_funcionario(funcionario)
+
+    hospede = Hospede("Miguel", 22, 3)
+    hospede.atribuir_quarto(quarto3)
+    rececionista.registrar_hospede(hospede, hotel.hospedes)
+
+    return hotel, gerente, rececionista, tecnico_recepcao
+
+
+def menu(hotel, gerente, rececionista, tecnico_recepcao):
+    while True:
+        print("=== SISTEMA DO HOTEL ===")
+        print("1 - Listar quartos")
+        print("2 - Listar hóspedes")
+        print("3 - Listar funcionários")
+        print("4 - Mostrar conta do hóspede")
+        print("5 - Fazer checkout")
+        print("6 - Relatório do gerente")
+        print("7 - Testar técnico de receção")
+        print("0 - Sair")
+
+        opcao = input("Opção: ")
+
+        if opcao == "1":
+            hotel.listar_quartos()
+        elif opcao == "2":
+            rececionista.listar_hospedes(hotel.hospedes)
+        elif opcao == "3":
+            hotel.listar_funcionarios()
+        elif opcao == "4":
+            if hotel.hospedes:
+                hospede = hotel.hospedes[0]
+                print(
+                    f"Conta de {hospede.nome}: "
+                    f"{hospede.calcular_conta()} €"
+                )
+            else:
+                print("Não existem hóspedes registados.")
+        elif opcao == "5":
+            if hotel.hospedes:
+                hotel.hospedes[0].checkout()
+                hotel.hospedes.pop(0)
+            else:
+                print("Não existem hóspedes registados.")
+        elif opcao == "6":
+            gerente.gerar_relatorio(hotel.funcionarios)
+        elif opcao == "7":
+            tecnico_recepcao.registrar_hospede("Carlos")
+            tecnico_recepcao.registrar_reparo("Troca do cabo de rede")
+            tecnico_recepcao.mostrar_info()
+        elif opcao == "0":
+            print("Programa terminado.")
+            break
+        else:
+            print("Opção inválida.")
+
+
+def testes():
+    hotel = Hotel("Hotel Teste")
+    q1 = QuartoSimples(1, 50)
+    q2 = QuartoLuxo(2, 100)
+
+    hotel.adicionar_quarto(q1)
+    hotel.adicionar_quarto(q2)
+
+    hospede = Hospede("Teste", 20, 2)
+    hospede.atribuir_quarto(q2)
+
+    if q2.ocupado is not True:
+        print("Erro no teste do quarto ocupado.")
+    if hospede.calcular_conta() != 200:
+        print("Erro no cálculo da conta.")
+
+    q2.preco_diaria = -1
+
+    rececionista = Recepcionista("Ana", "R1", 30, 900, "manhã")
+    rececionista.registrar_hospede(hospede, hotel.hospedes)
+    quantidade = 0
+    for hospede_teste in hotel.hospedes:
+        quantidade = quantidade + 1
+    if quantidade != 1:
+        print("Erro no registo do hóspede.")
+
+    tecnico = TecnicoRecepcao(
+        "Rui", "TR1", 1200, "Receção", "Informática"
+    )
+    tecnico.registrar_hospede("João")
+    tecnico.registrar_reparo("Impressora")
+    quantidade = 0
+    for nome in tecnico.hospedes_registados:
+        quantidade = quantidade + 1
+    if quantidade != 1:
+        print("Erro no registo do técnico.")
+    quantidade = 0
+    for reparo in tecnico.reparos:
+        quantidade = quantidade + 1
+    if quantidade != 1:
+        print("Erro no reparo do técnico.")
+
+    hospede.checkout()
+    if q2.ocupado is not False:
+        print("Erro no checkout.")
+
+    print("Todos os testes passaram.")
+
+
+if __name__ == "__main__":
+    testes()
+    hotel, gerente, rececionista, tecnico_recepcao = criar_dados()
+    menu(hotel, gerente, rececionista, tecnico_recepcao)
