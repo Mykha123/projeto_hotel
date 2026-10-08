@@ -329,7 +329,7 @@ def criar_dados():
 
 def menu(hotel, gerente, rececionista, tecnico_recepcao):
     while True:
-        print("=== SISTEMA DO HOTEL ===")
+        
         print("1 - Listar quartos")
         print("2 - Listar hóspedes")
         print("3 - Listar funcionários")
