@@ -330,14 +330,14 @@ def criar_dados():
 def menu(hotel, gerente, rececionista, tecnico_recepcao):
     while True:
         
-        print("1 - Listar quartos")
-        print("2 - Listar hóspedes")
-        print("3 - Listar funcionários")
-        print("4 - Mostrar conta do hóspede")
-        print("5 - Fazer checkout")
-        print("6 - Relatório do gerente")
-        print("7 - Testar técnico de receção")
-        print("0 - Sair")
+        print("1 Listar quartos")
+        print("2 Listar hóspedes")
+        print("3 Listar funcionários")
+        print("4 Mostrar conta do hóspede")
+        print("5 Fazer checkout")
+        print("6 Relatório do gerente")
+        print("7 Testar técnico de receção")
+        print("0 Sair")
 
         opcao = input("Opção: ")
 
