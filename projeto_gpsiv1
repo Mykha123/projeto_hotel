@@ -1,28 +1,29 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 
 
 class Pessoa(ABC):
     def __init__(self, nome, idade):
         self.nome = nome
         self.idade = idade
+        pass
 
     @property
     def nome(self):
         return self._nome
-        pass
+        
+
     @nome.setter
     def nome(self, valor):
         self._nome = valor
         pass
+
     @property
     def idade(self):
         return self._idade
-        pass
+        
+
     @idade.setter
     def idade(self, valor):
-        if valor < 0:
-            print("Idade inválida.")
-            return
         self._idade = valor
         pass
 
@@ -35,12 +36,6 @@ class Funcionario(Pessoa):
         self.id_func = id_func
         self.salario = salario
 
-    def mostrar_informacoes(self):
-        print(
-            f"Funcionário: {self.nome} | ID: {self.id_func} | "
-            f"Salário: {self.salario} €"
-        )
-        pass
 
 
 class Hospede(Pessoa):
@@ -77,7 +72,6 @@ class Hospede(Pessoa):
 
     def atribuir_quarto(self, quarto):
         self.quarto = quarto
-        pass
 
     def calcular_conta(self):
         if self.quarto is None:
@@ -90,6 +84,7 @@ class Hospede(Pessoa):
             f"Hóspede: {self.nome} | Idade: {self.idade} | "
             f"Quarto: {numero}"
         )
+        
 
     def checkout(self):
         if self.quarto is not None:
@@ -118,7 +113,7 @@ class Gerente(Funcionario):
 
 
 class Recepcionista(Funcionario):
-    TURNOS_VALIDOS = ("manhã", "tarde", "noite")
+    TURNOS_VALIDOS = ["manhã", "tarde", "noite"]
 
     def __init__(self, nome, id_func, idade, salario, turno):
         super().__init__(nome, id_func, idade, salario)
@@ -167,7 +162,6 @@ class TecnicoManutencao(Funcionario):
     @especialidade.setter
     def especialidade(self, valor):
         self._especialidade = valor
-        pass
 
     def mostrar_informacoes(self):
         print(
@@ -199,13 +193,8 @@ class TecnicoRecepcao(Recepcionista, TecnicoManutencao):
             f"Salário: {self.salario} € | Setor: {self.setor} | "
             f"Especialidade: {self.especialidade}"
         )
-        quantidade_hospedes = 0
-        for nome in self.hospedes_registados:
-            quantidade_hospedes = quantidade_hospedes + 1
-
-        quantidade_reparos = 0
-        for reparo in self.reparos:
-            quantidade_reparos = quantidade_reparos + 1
+        quantidade_hospedes = len(self.hospedes_registados)
+        quantidade_reparos = len(self.reparos)
 
         print(f"Hóspedes registados: {quantidade_hospedes}")
         print(f"Reparos registados: {quantidade_reparos}")
@@ -252,8 +241,8 @@ class QuartoSimples(Quarto):
     def mostrar_informacoes(self):
         estado = "Ocupado" if self.ocupado else "Livre"
         print(
-            f"Quarto {self.numero} | Tipo: {self.tipo} | "
-            f"Preço: {self.preco_diaria} € | Estado: {estado}"
+            f"Quarto {self.numero} Tipo: {self.tipo} "
+            f"Preço: {self.preco_diaria} € Estado: {estado}"
         )
 
 
@@ -264,8 +253,8 @@ class QuartoLuxo(Quarto):
     def mostrar_informacoes(self):
         estado = "Ocupado" if self.ocupado else "Livre"
         print(
-            f"Quarto {self.numero} | Tipo: {self.tipo} | "
-            f"Preço: {self.preco_diaria} € | Estado: {estado}"
+            f"Quarto {self.numero} Tipo: {self.tipo} "
+            f"Preço: {self.preco_diaria} € Estado: {estado}"
         )
 
 
@@ -392,9 +381,7 @@ def testes():
 
     rececionista = Recepcionista("Ana", "R1", 30, 900, "manhã")
     rececionista.registrar_hospede(hospede, hotel.hospedes)
-    quantidade = 0
-    for hospede_teste in hotel.hospedes:
-        quantidade = quantidade + 1
+    quantidade = len(hotel.hospedes)
     if quantidade != 1:
         print("Erro no registo do hóspede.")
 
@@ -403,14 +390,10 @@ def testes():
     )
     tecnico.registrar_hospede("João")
     tecnico.registrar_reparo("Impressora")
-    quantidade = 0
-    for nome in tecnico.hospedes_registados:
-        quantidade = quantidade + 1
+    quantidade = len(tecnico.hospedes_registados)
     if quantidade != 1:
         print("Erro no registo do técnico.")
-    quantidade = 0
-    for reparo in tecnico.reparos:
-        quantidade = quantidade + 1
+    quantidade = len(tecnico.reparos)
     if quantidade != 1:
         print("Erro no reparo do técnico.")
 
